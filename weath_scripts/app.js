@@ -3,6 +3,7 @@ const card = document.querySelector('.card');
 const details = document.querySelector('.details');
 const time = document.querySelector('.time');
 const icon = document.querySelector('.icon img');
+const forecast = new Forecast();
 
 const updateUI = (data) =>{
 
@@ -25,15 +26,6 @@ const updateUI = (data) =>{
 	//update the night/day icon image
 
 	let timeSrc = weather.IsDayTime ? "weath_images/day.svg" : "weath_images/night.svg";
-
-	// let timeSrc = null;
-	// if (weather.IsDayTime) {
-	// 	timeSrc = "weath_images/day.svg";
-	// }
-	// else{
-	// 	timeSrc = "weath_images/night.svg";
-	// }
-
 	time.setAttribute('src', timeSrc);
 
 	let iconSrc = `weath_images/icons/${weather.WeatherIcon}.svg`;
@@ -47,18 +39,6 @@ const updateUI = (data) =>{
 };
 
 
-const updateCity = async (city) => {
-	const cityDets = await getCity(city);
-	const weather = await getWeather(cityDets.Key);
-
-	// return{cityDets, weather}; This is object shorthand notation
-
-	return {
-		cityDets: cityDets,
-		weather: weather
-	};
-};
-
 
 cityForm.addEventListener('submit', (e) => {
 	//prevent default
@@ -69,15 +49,28 @@ cityForm.addEventListener('submit', (e) => {
 	cityForm.reset();
 
 	// update the ui with the new city 
-	updateCity(city).then((data)=>{
+	forecast.updateCity(city).then((data)=>{
 		console.log(data);
 		updateUI(data);
 	}).catch((err) => {
 		console.log(err);
 	});
 
+// checking the local storage
+	localStorage.setItem('city', city);
 });
 
-//Ternary Operator
-// const result = false ? 'value 1' : 'value 2';
-// console.log(result);
+
+
+// checking the local storage
+	if (localStorage.getItem('city')) {
+		console.log(localStorage.getItem('city'));
+		
+		forecast.updateCity(localStorage.getItem('city'))
+		.then((data)=>{
+			console.log(data);
+			updateUI(data);
+		}).catch((err) => {
+			console.log(err);
+		});
+	}
